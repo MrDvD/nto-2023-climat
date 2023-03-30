@@ -1,19 +1,23 @@
 import socket, numpy, json
 
-server_ip, server_port = '10.0.20.21', 7001
+server_ip, server_port = '192.168.19.47', 7001
 vent_ip, vent_ip = '', 7005
 
 # def to_temp(adc, r):
 #     return round((adc / 1023.0) * 5 * 100, r)
 
+# def to_temp(adc, r):
+#     print(f'adc: {adc}')
+#     return round(numpy.interp(adc, [0, 1024], [-40, 125]), r)
+
 def to_temp(adc, r):
     print(f'adc: {adc}')
-    return round(numpy.interp(adc, [0, 1024], [-40, 125]), r)
+    return round(adc / 10 - 273, r)
 
-def to_pwm(temp):
-    print(f'input_temp: {temp}')
-    if temp > 0:
-        return int(numpy.interp(temp, [0, 18], [160, 255]))
+def to_pwm(temp_diff):
+    print(f'temp_diff: {temp_diff}')
+    if temp_diff > 0:
+        return int(numpy.interp(temp_diff, [0, 10], [160, 255]))
     return 0
 
 indoors, outdoors = 20, 20

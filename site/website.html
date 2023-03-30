@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+   <meta charset="UTF-8"></meta>
+   <head>
+      <title>Lab</title>
+      <link rel='stylesheet' href='styles.css'></link>
+   </head>
+
+   <body>
+      <div class='update'>
+         <p>Update frequency (in ms):</p>
+         <input type="number" id="timeout"></input>
+         <button id="ok">OK</button>
+      </div>
+      <p>Temperature outside:</p>
+      <div id="outside"></div>
+      <p>Temperature inside:</p>
+      <div id="inside"></div>
+      <p>Temperature Difference:</p>
+      <div id="difference"></div>
+      <p>Fan Duty:</p>
+      <div id="fan"></div>
+      <p>Window State:</p>
+      <div id="window"></div>
+
+      <!-- Последняя версия jQuery -->
+      <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+      <script src="script.js"></script>
+   </body>
+</html>
