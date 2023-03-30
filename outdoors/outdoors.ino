@@ -26,7 +26,6 @@ void setup() {
 
   // PINS
   analogReadResolution(10);
-  // analogSetAttenuation(ADC_11db);
 
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, pass);
