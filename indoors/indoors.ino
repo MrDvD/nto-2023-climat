@@ -111,7 +111,7 @@ void loop() {
   if (win_curr == 1 && win_prev != win_curr) {
      win_prev = win_curr;
      Serial.print("1IF: ");
-     for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
+     for (pos = 0; pos <= 90; pos += 1) { // goes from 0 degrees to 180 degrees
         // in steps of 1 degree
         myservo.write(pos);              // tell servo to go to position in variable 'pos'
         delay(15);                       // waits 15ms for the servo to reach the position
@@ -121,7 +121,7 @@ void loop() {
   if (win_curr == 0 && win_prev != win_curr) {
      win_prev = win_curr;
      Serial.print("2IF: ");
-     for (pos = 180; pos >= 0; --pos) {
+     for (pos = 90; pos >= 0; --pos) {
         myservo.write(pos);
         Serial.print(pos);
         delay(15);
