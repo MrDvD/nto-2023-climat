@@ -13,14 +13,15 @@ Servo myservo;
 DynamicJsonDocument response_doc(64);
 
 boolean is_avg(int ADC[3]) {
-   static int count = 0;
-   if (count == 3) {
-      count = 0;
-      return true;
-   }
-   ADC[count] = analogReadMilliVolts(34);
-   ++count;
-   return false;
+  static int count = 0;
+  if (count == 3) {
+    count = 0;
+    return true;
+  }
+  ADC[count] = analogReadMilliVolts(34);
+
+  ++count;
+  return false;
 }
 
 void setup() {
@@ -28,13 +29,14 @@ void setup() {
 
   // PINS
   analogReadResolution(10);
+  // analogSetAttenuation(ADC_11db);
   // analogSetVRefPin(25);  // ...этой строчкой (1)
   // pinMode(26, OUTPUT);
   ledcSetup(5, 256, 8);
   ledcAttachPin(26, 5);
 
   // myservo.setPeriodHertz(50);  // на всякий случай
-  myservo.attach(25);          // пин нужно было принудительно перевести в аналоговый режим... (1)
+  myservo.attach(25);  // пин нужно было принудительно перевести в аналоговый режим... (1)
 
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, pass);
@@ -51,8 +53,8 @@ int win_prev;
 int ADC[3];
 
 void fan_set(int pin, int value) {
-   // dacWrite(26, atoi(pwm.c_str()));
-   // не забыть убрать pinMode, если меняем
+  // dacWrite(26, atoi(pwm.c_str()));
+  // не забыть убрать pinMode, если меняем
   //  if (value == 0) {
   //     digitalWrite(pin, LOW);
   //  } else {
@@ -63,7 +65,7 @@ void fan_set(int pin, int value) {
 
 void loop() {
   if (!is_avg(ADC)) {
-     return;
+    return;
   }
   int avg_temp = (ADC[0] + ADC[1] + ADC[2]) / 3;
   Serial.printf("avg_temp: %d\n", avg_temp);
@@ -73,9 +75,9 @@ void loop() {
   client.printf("i%d", avg_temp);
 
   String response = client.readString();
-  if (response == ""){
+  if (response == "") {
     return;
-  }  
+  }
   Serial.printf("response: %s\n", response.c_str());
   client.stop();
 
@@ -109,24 +111,24 @@ void loop() {
   //   win_prev = win_curr;
   // }
   if (win_curr == 1 && win_prev != win_curr) {
-     win_prev = win_curr;
-     Serial.print("1IF: ");
-     for (pos = 0; pos <= 90; pos += 1) { // goes from 0 degrees to 180 degrees
-        // in steps of 1 degree
-        myservo.write(pos);              // tell servo to go to position in variable 'pos'
-        delay(15);                       // waits 15ms for the servo to reach the position
-      }
-     Serial.print('\n');
+    win_prev = win_curr;
+    Serial.print("1IF: ");
+    for (pos = 0; pos <= 90; pos += 1) {  // goes from 0 degrees to 180 degrees
+      // in steps of 1 degree
+      myservo.write(pos);  // tell servo to go to position in variable 'pos'
+      delay(15);           // waits 15ms for the servo to reach the position
+    }
+    Serial.print('\n');
   }
   if (win_curr == 0 && win_prev != win_curr) {
-     win_prev = win_curr;
-     Serial.print("2IF: ");
-     for (pos = 90; pos >= 0; --pos) {
-        myservo.write(pos);
-        Serial.print(pos);
-        delay(15);
-     }
-     Serial.print('\n');
+    win_prev = win_curr;
+    Serial.print("2IF: ");
+    for (pos = 90; pos >= 0; --pos) {
+      myservo.write(pos);
+      Serial.print(pos);
+      delay(15);
+    }
+    Serial.print('\n');
   }
   delay(150);
 }
