@@ -7,9 +7,21 @@ const char ssid[] = "smartpark";
 const char pass[] = "15873903";
 const char *ip = "10.0.20.21";
 int port = 7001;
+int pos = 0;
 
-Servo win_obj;
+Servo myservo;
 DynamicJsonDocument response_doc(64);
+
+boolean is_avg(int ADC[3]) {
+   static int count = 0;
+   if (count == 3) {
+      count = 0;
+      return true;
+   }
+   ADC[count] = analogRead(34);
+   ++count;
+   return false;
+}
 
 void setup() {
   Serial.begin(115200);
@@ -17,12 +29,12 @@ void setup() {
   // PINS
   analogReadResolution(10);
   analogSetVRefPin(25);  // ...этой строчкой (1)
-  pinMode(26, OUTPUT);
-  // ledcSetup(0, 256, 8);
-  // ledcAttachPin(26, 0);
+  // pinMode(26, OUTPUT);
+  ledcSetup(5, 256, 8);
+  ledcAttachPin(26, 5);
 
-  // win_obj.setPeriodHertz(50);  // на всякий случай
-  win_obj.attach(25);          // пин нужно было принудительно перевести в аналоговый режим... (1)
+  // myservo.setPeriodHertz(50);  // на всякий случай
+  myservo.attach(25);          // пин нужно было принудительно перевести в аналоговый режим... (1)
 
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, pass);
@@ -41,25 +53,29 @@ int ADC[3];
 void fan_set(int pin, int value) {
    // dacWrite(26, atoi(pwm.c_str()));
    // не забыть убрать pinMode, если меняем
-   if (value == 0) {
-      digitalWrite(pin, LOW);
-   } else {
-      digitalWrite(pin, HIGH);
-   }
+  //  if (value == 0) {
+  //     digitalWrite(pin, LOW);
+  //  } else {
+  //     digitalWrite(pin, HIGH);
+  //  }
+  ledcWrite(5, value);
 }
 
 void loop() {
   if (!is_avg(ADC)) {
-     continue;
+     return;
   }
   int avg_temp = (ADC[0] + ADC[1] + ADC[2]) / 3;
   Serial.printf("avg_temp: %d\n", avg_temp);
 
   WiFiClient client;
   client.connect(ip, port);
-  client.printf("i%d", temp_volt);
+  client.printf("i%d", avg_temp);
 
   String response = client.readString();
+  if (response == ""){
+    return;
+  }  
   Serial.printf("response: %s\n", response.c_str());
   client.stop();
 
@@ -71,7 +87,7 @@ void loop() {
   Serial.printf("win_curr: %d, win_prev: %d\n", win_curr, win_prev);
 
   String pwm = response_doc["pwm"];
-  Serial.printf("pwm: %d\n", pwm);
+  Serial.printf("pwm: %s\n", pwm.c_str());
   int pwm_int = atoi(pwm.c_str());
   fan_set(26, pwm_int);
 
@@ -81,32 +97,32 @@ void loop() {
 
   // у нас может быть сервопривод непрерывного вращения:
   // if (win_curr == 1 && win_prev == 0) {
-  //   win_obj.write(180);
+  //   myservo.write(180);
   //   delay(50);
-  //   win_obj.write(90);
+  //   myservo.write(90);
   //   win_prev = win_curr;
   // }
   // if (win_curr == 0 && win_prev == 1) {
-  //   win_obj.write(0);
+  //   myservo.write(0);
   //   delay(50);
-  //   win_obj.write(90);
+  //   myservo.write(90);
   //   win_prev = win_curr;
   // }
   if (win_curr == 1 && win_prev != win_curr) {
      win_prev = win_curr;
      Serial.print("1IF: ");
-     for (int pos = 0; pos <= 180; ++pos) {
-        win_obj.write(pos);
-        Serial.print(pos);
-        delay(15);
-     }
+     for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
+        // in steps of 1 degree
+        myservo.write(pos);              // tell servo to go to position in variable 'pos'
+        delay(15);                       // waits 15ms for the servo to reach the position
+      }
      Serial.print('\n');
   }
   if (win_curr == 0 && win_prev != win_curr) {
      win_prev = win_curr;
      Serial.print("2IF: ");
-     for (int pos = 180; pos >= 0; --pos) {
-        win_obj.write(pos);
+     for (pos = 180; pos >= 0; --pos) {
+        myservo.write(pos);
         Serial.print(pos);
         delay(15);
      }

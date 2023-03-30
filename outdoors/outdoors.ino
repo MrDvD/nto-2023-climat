@@ -8,6 +8,17 @@ const char pass[] = "15873903";
 const char *ip = "10.0.20.21";
 int port = 7001;
 
+boolean is_avg(int ADC[3]) {
+   static int count = 0;
+   if (count == 3) {
+      count = 0;
+      return true;
+   }
+   ADC[count] = analogRead(34);
+   ++count;
+   return false;
+}
+
 void setup() {
    Serial.begin(115200);
    
@@ -27,21 +38,26 @@ void setup() {
 }
 
 int prev_temp = 0;
+int ADC[3];
 
 void loop() {
    // IDF
-   adc1_config_width(ADC_WIDTH_BIT_10); // ширина выбрана случайно, нужно изучить
-   int curr_temp = adc1_get_raw(ADC1_CHANNEL_6);
-   // int curr_temp = analogRead(34);
-   // https://tinyurl.com/2p9396c8 ADC CALIBRATION
+    if (!is_avg(ADC)) {
+     return;
+  }
+  int avg_temp = (ADC[0] + ADC[1] + ADC[2]) / 3;
+  Serial.printf("avg_temp: %d\n", avg_temp);
 
-   if (curr_temp != prev_temp){
-      prev_temp = curr_temp;
-      Serial.println(curr_temp);
-      
-      WiFiClient client;
-      client.connect(ip, port);
-      client.printf("o%d", curr_temp);
-      client.stop();
-   }
+
+  if (avg_temp != prev_temp){
+    prev_temp = avg_temp;
+    Serial.println(avg_temp);
+    
+    WiFiClient client;
+    client.connect(ip, port);
+    client.printf("o%d", avg_temp);
+    client.stop();
+    
+  }
+  delay (1000);
 }
