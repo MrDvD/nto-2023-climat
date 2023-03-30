@@ -1,6 +1,6 @@
 import socket, numpy, json
 
-server_ip, server_port = '192.168.19.47', 7001
+server_ip, server_port = '10.42.0.1', 7001
 vent_ip, vent_ip = '', 7005
 
 # def to_temp(adc, r):

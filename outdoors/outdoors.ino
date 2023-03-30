@@ -3,9 +3,10 @@
 #include <sstream>
 #include <driver/adc.h> // IDF
 
-const char ssid[] = "smartpark";
-const char pass[] = "15873903";
-const char *ip = "10.0.20.21";
+const char ssid[] = "POTENC_PHYS";
+const char pass[] = "111111110";
+const char *ip = "10.42.0.1";
+
 int port = 7001;
 
 boolean is_avg(int ADC[3]) {
@@ -14,7 +15,8 @@ boolean is_avg(int ADC[3]) {
       count = 0;
       return true;
    }
-   ADC[count] = analogRead(34);
+   ADC[count] = analogReadMilliVolts(34);
+
    ++count;
    return false;
 }

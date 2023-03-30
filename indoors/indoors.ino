@@ -3,9 +3,9 @@
 #include <ArduinoJson.h>
 #include <ESP32Servo.h>
 
-const char ssid[] = "smartpark";
-const char pass[] = "15873903";
-const char *ip = "10.0.20.21";
+const char ssid[] = "POTENC_PHYS";
+const char pass[] = "111111110";
+const char *ip = "10.42.0.1";
 int port = 7001;
 int pos = 0;
 
@@ -18,7 +18,7 @@ boolean is_avg(int ADC[3]) {
       count = 0;
       return true;
    }
-   ADC[count] = analogRead(34);
+   ADC[count] = analogReadMilliVolts(34);
    ++count;
    return false;
 }
@@ -28,7 +28,7 @@ void setup() {
 
   // PINS
   analogReadResolution(10);
-  analogSetVRefPin(25);  // ...этой строчкой (1)
+  // analogSetVRefPin(25);  // ...этой строчкой (1)
   // pinMode(26, OUTPUT);
   ledcSetup(5, 256, 8);
   ledcAttachPin(26, 5);
