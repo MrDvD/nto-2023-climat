@@ -1,6 +1,6 @@
 import socket, numpy, json, re
 
-server_ip, server_port = '10.42.0.1', 7001
+server_ip, server_port = '10.42.0.1', 7000
 desired = 24
 lock_indoors, lock_outdoors, lock_window, lock_fan = False, False, False, False
 
@@ -43,14 +43,7 @@ post_desired = re.compile(r'POST /desired ')
 parse_payload = re.compile(r'\r\n\r\n(.+)')
 
 with open('site/website.html', 'r') as html:
-    with open('site/script.js', 'r') as js:
-        with open('site/styles.css', 'r') as css:
-            website = html.readlines()
-            website = ''.join(website)
-            script = js.readlines()
-            script = ''.join(script)
-            styles = css.readlines()
-            styles = ''.join(styles)
+    website = html.readlines()
 
 indoors, outdoors, window_prev, window_curr, pwm_percent, pwm = '???', '???', '???', '???', '???', '???'
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
@@ -63,7 +56,32 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             packet = client.recv(512)
             packet = packet.decode()
             if get_html.match(packet):
-               header = f'HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n{website}'
+               website[9] = website[9][:43] + str(outdoors) + '</p>\n'
+               website[12] = website[12][:42] + str(indoors) + '</p>\n'
+               try:
+                   website[15] = website[15][:46] + str(outdoors - desired) + '</p>\n'
+               except:
+                   website[15] = website[15][:46] + '???</p>\n'
+               try:
+                   website[18] = website[18][:32] + str(numpy.interp(pwm, [160, 255], [0, 100])) + '%</p>\n'
+               except:
+                   website[18] = website[18][:32] + '0.0%</p>\n'
+               if lock_window:
+                   if not isinstance(window_prev, str):
+                       win_state = int(window_prev)
+                   else:
+                       win_state = 0
+               else:
+                   if not isinstance(window_curr, str):
+                       win_state = int(window_curr)
+                   else:
+                       win_state = 0
+               if win_state:
+                   website[21] = website[21][:36] + 'opened</p>\n>'
+               else:
+                   website[21] = website[21][:36] + 'closed</p>\n>'
+               website_str = ''.join(website)
+               header = f'HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n{website_str}'
                client.send(header.encode())
                client.close()
                continue
@@ -163,7 +181,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                print(f'pwm: {pwm}')
                data = {'pwm': pwm}
                
-               window_curr = 1 if indoors - outdoors >= 0 and indoors > desired else 0
+               window_curr = 1 if isinstance(outdoors, str) and indoors - outdoors >= 0 and indoors > desired else 0
                if lock_window:
                   data['window'] = window_prev
                else:
