@@ -15,7 +15,7 @@ boolean is_avg(int ADC[3]) {
     count = 0;
     return true;
   }
-  ADC[count] = analogReadMilliVolts(34);
+  ADC[count] = analogRead(34);
 
   ++count;
   return false;
