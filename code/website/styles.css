@@ -1,0 +1,39 @@
+.temp_out {
+   display: grid;
+   grid: auto-flow /6cm 5cm 5cm 11mm 17mm;
+   grid-column: 1;
+   align-items: center;
+   height: 32px;
+}
+
+.temp_in {
+   display: grid;
+   grid: auto-flow /6cm 5cm 5cm 11mm 17mm;
+   grid-column: 1;
+   align-items: center;
+   height: 32px;
+}
+
+.temp_diff {
+   display: grid;
+   grid: auto-flow /6cm 5cm;
+   grid-column: 1;
+   align-items: center;
+   height: 32px;
+}
+
+.fan_duty {
+   display: grid;
+   grid: auto-flow /6cm 5cm 5cm 11mm 17mm;
+   grid-column: 1;
+   align-items: center;
+   height: 32px;
+}
+
+.window_state {
+   display: grid;
+   grid: auto-flow /6cm 5cm 5cm 11mm 17mm;
+   grid-column: 1;
+   align-items: center;
+   height: 32px;
+}
